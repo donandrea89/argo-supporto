@@ -1,0 +1,281 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>Installa Argo · Argo</title><link rel="icon" href="assets/argo-icon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css"></head><body><a class="skip" href="#contenuto">Vai al contenuto</a><header><a class="brand" href="index.html"><img src="assets/argo-icon.svg" alt="" width="52" height="52">ARGO</a><nav aria-label="Navigazione"><a href="installa.html">Installa</a><a href="supporto.html">Assistenza</a><a href="privacy.html">Privacy</a><a href="licenza.html">Licenza</a></nav></header><main id="contenuto"><h1>Installa Argo sul tuo NAS</h1><p class="lead">Un solo passo al computer, circa 5 minuti: incolli un file nel pannello Docker del NAS e premi Avvia. Il resto lo fa l’app Argo.</p><ol><li>Scegli qui sotto la marca del tuo NAS e segui i tre passi.</li><li>Quando il NAS mostra il progetto «argo» in esecuzione, apri l’app Argo sull’iPhone, l’iPad o il Mac, collegato al Wi-Fi di casa.</li><li>L’app trova Argo da sola: crei il tuo profilo, scegli le cartelle dei film e delle serie, e il catalogo si prepara.</li></ol><p>Argo legge le cartelle in sola lettura e non sposta né cambia nessun file. Jellyfin, che prepara copertine e video, resta nascosto dentro il NAS: lo raggiunge solo Argo. Questa pagina non raccoglie dati e non invia nulla.</p><h2>Scegli il tuo NAS</h2><details id="synology"><summary>Synology</summary><p><strong>Serve:</strong> DSM 7.2 e un modello con Container Manager.</p><ol><li>Apri DSM dal computer e, nel Centro pacchetti, installa Container Manager.</li><li>In Container Manager apri Progetto, premi Crea, dai il nome «argo» e scegli «Crea docker-compose.yml».</li><li>Incolla il file di Argo, premi Avanti e poi Fine. Attendi «In esecuzione».</li></ol><p>Il file di Argo per Synology, con le cartelle condivise in <code>/volume1</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /volume1:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /volume1:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="qnap"><summary>QNAP</summary><p><strong>Serve:</strong> QTS 5 o QuTS hero con Container Station.</p><ol><li>Apri il pannello del NAS dal computer e, nell’App Center, installa Container Station.</li><li>In Container Station apri Applicazioni e premi Crea.</li><li>Dai il nome «argo», incolla il file di Argo e premi Crea. Attendi che l’applicazione sia avviata.</li></ol><p>Il file di Argo per QNAP, con le cartelle condivise in <code>/share</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /share:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /share:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="ugreen"><summary>UGREEN</summary><p><strong>Serve:</strong> UGOS Pro con l’app Docker.</p><ol><li>Apri UGOS Pro dal computer e, nell’App Center, installa Docker.</li><li>In Docker apri Progetto e premi Crea.</li><li>Dai il nome «argo», incolla il file di Argo e premi Distribuisci.</li></ol><p>Il file di Argo per UGREEN, con le cartelle condivise in <code>/volume1</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /volume1:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /volume1:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="asustor"><summary>Asustor</summary><p><strong>Serve:</strong> ADM 4 con Portainer da App Central.</p><ol><li>Apri ADM dal computer e, in App Central, installa Portainer.</li><li>In Portainer apri Stacks e premi Add stack.</li><li>Dai il nome «argo», incolla il file di Argo e premi Deploy the stack.</li></ol><p>Il file di Argo per Asustor, con le cartelle condivise in <code>/volume1</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /volume1:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /volume1:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="terramaster"><summary>TerraMaster</summary><p><strong>Serve:</strong> TOS 6 con Docker Manager.</p><ol><li>Apri TOS dal computer e, nell’App Center, installa Docker Manager.</li><li>In Docker Manager apri Compose e premi Crea.</li><li>Dai il nome «argo», incolla il file di Argo e avvia il progetto.</li></ol><p>Il file di Argo per TerraMaster, con le cartelle condivise in <code>/Volume1</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /Volume1:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /Volume1:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="truenas"><summary>TrueNAS</summary><p><strong>Serve:</strong> TrueNAS SCALE 24.10 o successivo.</p><ol><li>Apri TrueNAS dal computer, vai in Apps e premi Discover Apps.</li><li>Apri il menu ⋮ e scegli Install via YAML.</li><li>Dai il nome «argo», incolla il file di Argo (sostituisci NOME-DEL-POOL con il tuo pool) e premi Save.</li></ol><p>Il file di Argo per TrueNAS, con le cartelle condivise in <code>/mnt/NOME-DEL-POOL</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /mnt/NOME-DEL-POOL:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /mnt/NOME-DEL-POOL:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="unraid"><summary>Unraid</summary><p><strong>Serve:</strong> Unraid 6.12 o successivo con il plugin Docker Compose Manager.</p><ol><li>Apri Unraid dal computer e, in Apps, installa Docker Compose Manager.</li><li>Nella scheda Docker premi Add New Stack e chiamalo «argo».</li><li>Premi Edit Stack, incolla il file di Argo, salva e premi Compose Up.</li></ol><p>Il file di Argo per Unraid, con le cartelle condivise in <code>/mnt/user</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /mnt/user:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /mnt/user:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><details id="altro"><summary>Altro o computer Linux</summary><p><strong>Serve:</strong> Docker con Compose.</p><ol><li>Salva il file di Argo come compose.yaml in una cartella del computer.</li><li>Cambia /srv con la cartella che contiene i tuoi film.</li><li>Nel Terminale, in quella cartella, esegui: docker compose up -d</li></ol><p>Il file di Argo per Altro o computer Linux, con le cartelle condivise in <code>/srv</code>:</p><pre>name: argo
+services:
+  argo:
+    image: ghcr.io/donandrea89/argo-server:latest
+    container_name: argo
+    restart: unless-stopped
+    user: &quot;0:0&quot;
+    ports:
+      - &quot;8787:8787&quot;
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      DATA_DIR: /data
+      CATALOG_DIR: /catalogo
+      NAS_ROOT: /nas
+      LOG_LEVEL: info
+    volumes:
+      - argo-dati:/data
+      - argo-catalogo:/catalogo
+      - /srv:/nas:ro
+    depends_on:
+      - jellyfin
+  jellyfin:
+    image: jellyfin/jellyfin:12.4
+    container_name: argo-jellyfin
+    restart: unless-stopped
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - argo-catalogo:/media/catalogo:ro
+      - /srv:/nas:ro
+volumes:
+  argo-dati:
+  argo-catalogo:
+  jellyfin-config:
+  jellyfin-cache:
+</pre></details><h2>Se l’app non trova Argo</h2><ul><li>Il telefono deve essere sul Wi-Fi di casa, non sulla rete mobile né su una rete ospiti.</li><li>Nel pannello Docker il progetto «argo» deve risultare in esecuzione; al primo avvio servono un paio di minuti per scaricarlo.</li><li>Alla domanda «Consentire ad Argo di trovare dispositivi nella rete locale?» rispondi Consenti. Se hai risposto no, cambialo in Impostazioni › Privacy › Rete locale.</li><li>Il progetto non parte se un altro programma usa già la porta 8787 del NAS.</li></ul><h2>Scheda video per i film 4K</h2><p>Sui NAS con processore Intel la scheda video rende più fluidi i film 4K. Nel file, sotto <code>jellyfin:</code>, aggiungi le righe <code>devices:</code> e <code>  - /dev/dri:/dev/dri</code>. Se il NAS non ha la scheda video il progetto non parte: in quel caso togli di nuovo le due righe.</p><p>I passi delle marche diverse da Synology sono stati scritti sulle guide dei produttori e sono in verifica: se trovi un menu con un nome diverso, scrivi all’<a href="supporto.html">assistenza</a>.</p></main><footer>Argo · Andrea Alfieri · <a href="mailto:info@donandreaalfieri.com">info@donandreaalfieri.com</a><br>Progetto indipendente da Synology, QNAP, UGREEN, Asustor, TerraMaster, TrueNAS, Unraid, Jellyfin e TMDB. I marchi appartengono ai rispettivi titolari.</footer></body></html>
