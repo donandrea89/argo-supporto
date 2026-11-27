@@ -278,4 +278,39 @@ volumes:
   argo-catalogo:
   jellyfin-config:
   jellyfin-cache:
-</pre></details><h2>Se l’app non trova Argo</h2><ul><li>Il telefono deve essere sul Wi-Fi di casa, non sulla rete mobile né su una rete ospiti.</li><li>Nel pannello Docker il progetto «argo» deve risultare in esecuzione; al primo avvio servono un paio di minuti per scaricarlo.</li><li>Alla domanda «Consentire ad Argo di trovare dispositivi nella rete locale?» rispondi Consenti. Se hai risposto no, cambialo in Impostazioni › Privacy › Rete locale.</li><li>Il progetto non parte se un altro programma usa già la porta 8787 del NAS.</li></ul><h2>Scheda video per i film 4K</h2><p>Sui NAS con processore Intel la scheda video rende più fluidi i film 4K. Nel file, sotto <code>jellyfin:</code>, aggiungi le righe <code>devices:</code> e <code>  - /dev/dri:/dev/dri</code>. Se il NAS non ha la scheda video il progetto non parte: in quel caso togli di nuovo le due righe.</p><p>I passi delle marche diverse da Synology sono stati scritti sulle guide dei produttori e sono in verifica: se trovi un menu con un nome diverso, scrivi all’<a href="supporto.html">assistenza</a>.</p></main><footer>Argo · Andrea Alfieri · <a href="mailto:info@donandreaalfieri.com">info@donandreaalfieri.com</a><br>Progetto indipendente da Synology, QNAP, UGREEN, Asustor, TerraMaster, TrueNAS, Unraid, Jellyfin e TMDB. I marchi appartengono ai rispettivi titolari.</footer></body></html>
+</pre></details><h2>Se l’app non trova Argo</h2><ul><li>Il telefono deve essere sul Wi-Fi di casa, non sulla rete mobile né su una rete ospiti.</li><li>Nel pannello Docker il progetto «argo» deve risultare in esecuzione; al primo avvio servono un paio di minuti per scaricarlo.</li><li>Alla domanda «Consentire ad Argo di trovare dispositivi nella rete locale?» rispondi Consenti. Se hai risposto no, cambialo in Impostazioni › Privacy › Rete locale.</li><li>Il progetto non parte se un altro programma usa già la porta 8787 del NAS.</li></ul><h2>Fuori casa (facoltativo)</h2><p>Per guardare Argo fuori casa e invitare amici e familiari serve un secondo progetto Docker, da creare nello stesso modo del primo con il nome «argo-fuori-casa». Le chiavi del collegamento privato nascono e restano sul tuo NAS. Nessun server di Argo sta in mezzo.</p><pre>name: argo-fuori-casa
+
+services:
+  vpn:
+    image: ghcr.io/donandrea89/argo-vpn:latest
+    container_name: argo-vpn
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv4.ip_forward: &quot;0&quot;
+    ports:
+      - &quot;51821:51821/udp&quot;
+    volumes:
+      - argo-vpn:/ospiti
+    networks:
+      - argo
+    logging:
+      driver: json-file
+      options:
+        max-size: &quot;1m&quot;
+        max-file: &quot;3&quot;
+
+volumes:
+  argo-vpn:
+    name: argo-vpn
+    external: true
+
+networks:
+  argo:
+    name: argo_default
+    external: true
+</pre><p>Poi, nell’app Argo, apri Impostazioni › Fuori casa e scegli una strada:</p><details><summary>Diretta, dal router di casa</summary><ol><li>Nel pannello del router (spesso all’indirizzo 192.168.1.1) cerca «Port forwarding», «Inoltro porte» o «Virtual server».</li><li>Inoltra la porta <strong>UDP 51821</strong> all’indirizzo del NAS, sulla stessa porta 51821.</li><li>Per un nome che non cambia usa il servizio gratuito della marca del NAS (per esempio QuickConnect DDNS di Synology, myQNAPcloud di QNAP) e scrivilo nell’app.</li></ol><p>La porta non risponde a chi non ha un invito: il NAS resta invisibile. Non funziona se l’operatore non dà un indirizzo pubblico, come succede con alcune linee FWA e mobili: in quel caso usa un VPS.</p></details><details><summary>Con un tuo VPS</summary><ol><li>Serve un VPS con Ubuntu o Debian, anche il più piccolo.</li><li>L’app ti mostra il codice del tuo NAS. Sul VPS, come amministratore, esegui:<pre>curl -fsSL https://donandrea89.github.io/argo-supporto/argo-vps.sh -o argo-vps.sh
+sudo bash argo-vps.sh CODICE-DEL-NAS</pre></li><li>Alla fine il VPS scrive un codice che inizia con ARGO-VPS1: incollalo nell’app.</li></ol><p>Il VPS inoltra soltanto pacchetti cifrati: non ha le chiavi degli ospiti e non può vedere cosa guardate. Se il fornitore del VPS ha un firewall nel suo pannello, apri le porte UDP 51820 e 51821. Puoi leggere lo script prima di eseguirlo: <a href="argo-vps.sh">argo-vps.sh</a>.</p></details><p>Se cambi strada, gli inviti già mandati vanno rifatti.</p><h2>Scheda video per i film 4K</h2><p>Sui NAS con processore Intel la scheda video rende più fluidi i film 4K. Nel file, sotto <code>jellyfin:</code>, aggiungi le righe <code>devices:</code> e <code>  - /dev/dri:/dev/dri</code>. Se il NAS non ha la scheda video il progetto non parte: in quel caso togli di nuovo le due righe.</p><p>I passi delle marche diverse da Synology sono stati scritti sulle guide dei produttori e sono in verifica: se trovi un menu con un nome diverso, scrivi all’<a href="supporto.html">assistenza</a>.</p></main><footer>Argo · Andrea Alfieri · <a href="mailto:info@donandreaalfieri.com">info@donandreaalfieri.com</a><br>Progetto indipendente da Synology, QNAP, UGREEN, Asustor, TerraMaster, TrueNAS, Unraid, Jellyfin e TMDB. I marchi appartengono ai rispettivi titolari.</footer></body></html>
